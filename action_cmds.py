@@ -15,6 +15,18 @@ from Vintageous.vi.utils import regions_transformer
 import re
 
 
+def regions_transformer_reversed(view, f):
+    sels = reversed(list(view.sel()))
+    new = []
+    for sel in sels:
+        region = f(view, sel)
+        if not isinstance(region, sublime.Region):
+            raise TypeError('sublime.Region required')
+        new.append(region)
+    view.sel().clear()
+    view.sel().add_all(new)
+
+
 @plugins.register(seq='ys', modes=(modes.NORMAL,))
 class ViSurround(ViOperatorDef):
     def __init__(self, *args, **kwargs):
@@ -130,7 +142,6 @@ class ViChangeSurround(ViOperatorDef):
         return cmd
 
 
-
 # actual command implementation
 class _vi_plug_ys(ViTextCommandBase):
     PAIRS = {
@@ -141,6 +152,7 @@ class _vi_plug_ys(ViTextCommandBase):
         '{': ('{', '}'),
         '}': ('{ ', ' }'),
     }
+
     def run(self, edit, mode=None, surround_with='"', count=1, motion=None):
         def f(view, s):
             if mode == modes.INTERNAL_NORMAL:
@@ -160,7 +172,7 @@ class _vi_plug_ys(ViTextCommandBase):
             self.view.run_command(motion['motion'], motion['motion_args'])
 
         if surround_with:
-            regions_transformer(self.view, f)
+            regions_transformer_reversed(self.view, f)
 
         self.enter_normal_mode(mode)
 
@@ -188,6 +200,7 @@ class _vi_plug_cs(sublime_plugin.TextCommand):
         '{': ('{', '}'),
         '}': ('{ ', ' }'),
     }
+
     def run(self, edit, mode=None, replace_what=''):
         def f(view, s):
             if mode == modes.INTERNAL_NORMAL:

@@ -34,13 +34,13 @@ class ShowVintageousPluginSurroundTestSuites(sublime_plugin.WindowCommand):
         self.window.show_quick_panel(sorted(test_suites.keys()), self.run_suite)
 
     def run_suite(self, idx):
-      if idx == -1:
-        return
+        if idx == -1:
+            return
 
-      suite_name = sorted(test_suites.keys())[idx]
-      command_to_run, names = test_suites[suite_name]
+        suite_name = sorted(test_suites.keys())[idx]
+        command_to_run, names = test_suites[suite_name]
 
-      self.window.run_command('_pt_run_vintageous_surround_tests', {'suite_names': names})
+        self.window.run_command('_pt_run_vintageous_surround_tests', {'suite_names': names})
 
 
 class _ptRunVintageousSurroundTests(sublime_plugin.WindowCommand):

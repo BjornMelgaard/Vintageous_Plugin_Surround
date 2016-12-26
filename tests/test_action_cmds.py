@@ -15,7 +15,11 @@ TESTS_YS = (
     ('{', 'dog {cat} turkey'),
     ('}', 'dog { cat } turkey'),
     ('<foo>', 'dog <foo>cat</foo> turkey'),
-    )
+)
+
+TESTS_YS_MULTIPLE_SELECTION = (
+    ('dog cat turkey',  [[(0, 0), (0, 3)], [(0, 8), (0, 14)]], '"', '"dog" cat "turkey"'),
+)
 
 
 class Test_ys(ViewTest):
@@ -29,9 +33,9 @@ class Test_ys(ViewTest):
 
             surround_with, expected = data
             self.view.run_command('_vi_plug_ys', {'mode': modes.VISUAL,
-                                                   'surround_with': surround_with})
+                                                  'surround_with': surround_with})
 
-            actual = self.view.substr(self.R(0, self.view.size()))
+            actual = self.get_all_text()
             self.assertEqual(actual, expected, 'failed at {0}'.format(i))
 
             self.erase_all()
@@ -50,10 +54,27 @@ class Test_ys(ViewTest):
 
             surround_with, expected = data
             self.view.run_command('_vi_plug_ys', {'mode': modes.INTERNAL_NORMAL,
-                                                   'surround_with': surround_with,
-                                                   'motion': motion})
+                                                  'surround_with': surround_with,
+                                                  'motion': motion})
 
-            actual = self.view.substr(self.R(0, self.view.size()))
+            actual = self.get_all_text()
+            self.assertEqual(actual, expected, 'failed at {0}'.format(i))
+
+            self.erase_all()
+
+    def testMultipleSel_VisualMode(self):
+        for (i, data) in enumerate(TESTS_YS_MULTIPLE_SELECTION):
+
+            text, regions, surround_with, expected = data
+            self.write(text)
+            self.clear_sel()
+            for region in regions:
+                self.add_sel(self.R(*region))
+
+            self.view.run_command('_vi_plug_ys', {'mode': modes.VISUAL,
+                                                  'surround_with': surround_with})
+
+            actual = self.get_all_text()
             self.assertEqual(actual, expected, 'failed at {0}'.format(i))
 
             self.erase_all()
@@ -66,7 +87,7 @@ TESTS_CS = (
     ('(]', 'dog [ cat ] turkey'),
     ('({', 'dog {cat} turkey'),
     ('(}', 'dog { cat } turkey'),
-    )
+)
 
 
 class Test_cs(ViewTest):
@@ -82,7 +103,7 @@ class Test_cs(ViewTest):
             self.view.run_command('_vi_plug_cs', {'mode': modes.INTERNAL_NORMAL,
                                                    'replace_what': replace_what})
 
-            actual = self.view.substr(self.R(0, self.view.size()))
+            actual = self.get_all_text()
             self.assertEqual(actual, expected, 'failed at {0}'.format(i))
 
             self.erase_all()
@@ -94,7 +115,7 @@ TESTS_DS = (
     ('dog [cat] turkey', '[', 'dog cat turkey'),
     ('dog {cat} turkey', '{', 'dog cat turkey'),
     # ('dog <foo>cat</foo> turkey', '<foo>', 'dog cat turkey'),
-    )
+)
 
 
 class Test_cs(ViewTest):
@@ -108,9 +129,9 @@ class Test_cs(ViewTest):
             self.state.mode = modes.INTERNAL_NORMAL
 
             self.view.run_command('_vi_plug_ds', {'mode': modes.INTERNAL_NORMAL,
-                                                   'replace_what': replace_what})
+                                                  'replace_what': replace_what})
 
-            actual = self.view.substr(self.R(0, self.view.size()))
+            actual = self.get_all_text()
             self.assertEqual(actual, expected, 'failed at {0}'.format(i))
 
             self.erase_all()
