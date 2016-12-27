@@ -187,8 +187,8 @@ class _vi_plug_ys(ViTextCommandBase):
             self.view.insert(edit, s.a, surround_with)
             return
 
-        self.view.insert(edit, s.b, close_)
-        self.view.insert(edit, s.a, open_)
+        self.view.insert(edit, s.end(), close_)
+        self.view.insert(edit, s.begin(), open_)
 
 
 class _vi_plug_cs(sublime_plugin.TextCommand):
